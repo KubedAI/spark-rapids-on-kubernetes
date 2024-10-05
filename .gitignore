@@ -56,5 +56,3 @@ site
 
 # node modules
 node_modules
-website/package-lock.json
-website/package.json
