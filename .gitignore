@@ -1,20 +1,32 @@
+.DS_Store
+.idea
+.build
+*.old
+
+# ignore the lock file
+website/package-lock.json
+
 # Local .terraform directories
 **/.terraform/*
+
+# Terraform lockfile
+.terraform.lock.hcl
 
 # .tfstate files
 *.tfstate
 *.tfstate.*
+*.tfplan
+
+terraform-apply.log
 
 # Crash log files
 crash.log
-crash.*.log
 
-# Exclude all .tfvars files, which are likely to contain sensitive data, such as
-# password, private keys, and other secrets. These should not be part of version 
-# control as they are data points which are potentially sensitive and subject 
+# Exclude all .tfvars files, which are likely to contain sentitive data, such as
+# password, private keys, and other secrets. These should not be part of version
+# control as they are data points which are potentially sensitive and subject
 # to change depending on the environment.
 *.tfvars
-*.tfvars.json
 
 # Ignore override files as they are usually used to override resources locally and so
 # are not checked in
@@ -23,15 +35,26 @@ override.tf.json
 *_override.tf
 *_override.tf.json
 
-# Ignore transient lock info files created by terraform apply
-.terraform.tfstate.lock.info
-
-# Include override files you do wish to add to version control using negated pattern
-# !example_override.tf
-
-# Include tfplan files to ignore the plan output of command: terraform plan -out=tfplan
-# example: *tfplan*
-
 # Ignore CLI configuration files
 .terraformrc
 terraform.rc
+
+# Locals
+kubeconfig*
+kube-config*
+local_tf_state/
+.vscode
+.gitallowed
+site
+.env*
+
+# Checks
+.tfsec
+
+# venv
+**/.venv/*
+
+# node modules
+node_modules
+website/package-lock.json
+website/package.json
