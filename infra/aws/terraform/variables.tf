@@ -16,7 +16,7 @@ variable "region" {
 variable "eks_cluster_version" {
   description = "Version of the EKS Kubernetes cluster to be deployed. Ensure this is compatible with the desired workload and add-ons (e.g., Spark, JupyterHub)."
   type        = string
-  default     = "1.30"
+  default     = "1.31"
 }
 
 # VPC CIDR block for the primary network
@@ -35,20 +35,6 @@ EOT
   type        = list(string)
   default     = ["100.64.0.0/16"]
 }
-
-# # Enable JupyterHub for interactive workloads
-# variable "enable_jupyterhub" {
-#   description = "Flag to enable the deployment of JupyterHub on the Kubernetes cluster. Set to true if interactive Jupyter notebooks are required for data science workloads."
-#   type        = bool
-#   default     = false
-# }
-
-# # Enable Volcano for batch scheduling of Spark jobs or other workloads
-# variable "enable_volcano" {
-#   description = "Flag to enable the Volcano batch scheduler on the Kubernetes cluster. Volcano is typically used for high-performance batch job scheduling in AI/ML workloads."
-#   type        = bool
-#   default     = false
-# }
 
 # KMS Key Admin Roles
 variable "kms_key_admin_roles" {
@@ -73,3 +59,17 @@ EOT
   type        = any
   default     = {}
 }
+
+# # Enable JupyterHub for interactive workloads
+# variable "enable_jupyterhub" {
+#   description = "Flag to enable the deployment of JupyterHub on the Kubernetes cluster. Set to true if interactive Jupyter notebooks are required for data science workloads."
+#   type        = bool
+#   default     = false
+# }
+
+# # Enable Volcano for batch scheduling of Spark jobs or other workloads
+# variable "enable_volcano" {
+#   description = "Flag to enable the Volcano batch scheduler on the Kubernetes cluster. Volcano is typically used for high-performance batch job scheduling in AI/ML workloads."
+#   type        = bool
+#   default     = false
+# }

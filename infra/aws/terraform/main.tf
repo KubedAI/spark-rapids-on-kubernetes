@@ -48,7 +48,7 @@ locals {
 
   # Project tags for tracking and referencing the GitHub repository.
   tags = {
-    GithubRepo = "https://github.com/KubedAI/spark-rapids-on-kubernetes"
+    GithubRepo = "github.com/KubedAI/spark-rapids-on-kubernetes"
   }
 }
 
@@ -63,9 +63,9 @@ locals {
 # }
 
 # Retrieves an authorization token for public ECR registry to authenticate image pulls.
-# data "aws_ecrpublic_authorization_token" "token" {
-#   provider = aws.ecr
-# }
+data "aws_ecrpublic_authorization_token" "token" {
+  provider = aws.ecr
+}
 
 # Retrieves all available AWS availability zones in the selected region.
 data "aws_availability_zones" "available" {}
