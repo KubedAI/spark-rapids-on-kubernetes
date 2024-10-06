@@ -8,7 +8,7 @@ const config: Config = {
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  url: 'https://kubedai.github.io',
+  url: 'https://kubed.ai',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',
@@ -40,21 +40,21 @@ const config: Config = {
           editUrl:
             'https://github.com/Kube-dAI/spark-rapids-on-kubernetes/tree/main/packages/create-spark-rapids-on-kubernetes/templates/shared/',
         },
-        blog: {
-          showReadingTime: true,
-          feedOptions: {
-            type: ['rss', 'atom'],
-            xslt: true,
-          },
-          // Please change this to your repo.
-          // Remove this to remove the "edit this page" links.
-          editUrl:
-            'https://github.com/Kube-dAI/spark-rapids-on-kubernetes/tree/main/packages/create-spark-rapids-on-kubernetes/templates/shared/',
-          // Useful options to enforce blogging best practices
-          onInlineTags: 'warn',
-          onInlineAuthors: 'warn',
-          onUntruncatedBlogPosts: 'warn',
-        },
+        // blog: {
+        //   showReadingTime: true,
+        //   feedOptions: {
+        //     type: ['rss', 'atom'],
+        //     xslt: true,
+        //   },
+        //   // Please change this to your repo.
+        //   // Remove this to remove the "edit this page" links.
+        //   editUrl:
+        //     'https://github.com/Kube-dAI/spark-rapids-on-kubernetes/tree/main/packages/create-spark-rapids-on-kubernetes/templates/shared/',
+        //   // Useful options to enforce blogging best practices
+        //   onInlineTags: 'warn',
+        //   onInlineAuthors: 'warn',
+        //   onUntruncatedBlogPosts: 'warn',
+        // },
         theme: {
           customCss: './src/css/custom.css',
         },
@@ -66,24 +66,36 @@ const config: Config = {
     // Replace with your project's social card
     image: 'img/spark-rapids-on-kubernetes-social-card.jpg',
     navbar: {
-      title: 'My Site',
+      title: 'Home',
       logo: {
-        alt: 'My Site Logo',
-        src: 'img/logo.svg',
+        alt: 'Site Logo',
+        src: 'img/kubedai-logo.png',
       },
       items: [
         {
           type: 'docSidebar',
-          sidebarId: 'tutorialSidebar',
+          sidebarId: 'introduction',
           position: 'left',
-          label: 'Tutorial',
+          label: 'Introduction',
         },
-        {to: '/blog', label: 'Blog', position: 'left'},
         {
-          href: 'https://github.com/Kube-dAI/spark-rapids-on-kubernetes',
-          label: 'GitHub',
-          position: 'right',
+          type: 'docSidebar',
+          sidebarId: 'infrastructure',
+          position: 'left',
+          label: 'Infrastructure Setup',
         },
+        {
+          type: 'docSidebar',
+          sidebarId: 'blueprints',
+          position: 'left',
+          label: 'Blueprints',
+        },
+        {
+          href: 'https://github.com/KubedAI/spark-rapids-on-kubernetes',
+          position: 'right',
+          className: 'header-github-link',
+          'aria-label': 'GitHub repository',
+        }
       ],
     },
     footer: {
@@ -124,18 +136,20 @@ const config: Config = {
             },
             {
               label: 'GitHub',
-              href: 'https://github.com/Kube-dAI/spark-rapids-on-kubernetes',
+              href: 'https://github.com/KubedAI/spark-rapids-on-kubernetes',
             },
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} My Project, Inc. Built with spark-rapids-on-kubernetes.`,
+      copyright: `Copyright © ${new Date().getFullYear()} Kubed.ai`,
     },
     prism: {
       theme: prismThemes.github,
       darkTheme: prismThemes.dracula,
     },
   } satisfies Preset.ThemeConfig,
+
+  
 };
 
 export default config;
