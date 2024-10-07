@@ -3,9 +3,6 @@
 .build
 *.old
 
-# ignore the lock file
-website/package-lock.json
-
 # Local .terraform directories
 **/.terraform/*
 
@@ -56,3 +53,12 @@ site
 
 # node modules
 node_modules
+
+# Optional logs
+logs
+*.log
+
+# Local .env files
+.env.local
+.env.development
+.env.production

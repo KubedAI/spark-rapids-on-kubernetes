@@ -12,6 +12,10 @@ module "eks" {
     eks-pod-identity-agent = {}
     kube-proxy             = {}
     vpc-cni                = {}
+    amazon-cloudwatch-observability = {
+      preserve                 = true
+      service_account_role_arn = aws_iam_role.cloudwatch_observability_role.arn
+    }
   }
 
   # Give the Terraform identity admin access to the cluster
@@ -87,7 +91,7 @@ module "eks" {
     #  It's recommended to use Karpenter to place your workloads instead of using Managed Node groups
     #  You can leverage nodeSelector and Taints/tolerations to distribute workloads across Managed Node group or Karpenter nodes.
     system_node_group = {
-      name        = "system-node-group"
+      name        = "system-nodegrp"
       description = "EKS Core node group for hosting system add-ons"
       # Filtering only Secondary CIDR private subnets starting with "100.". Subnet IDs where the nodes/node groups will be provisioned
       subnet_ids = compact([for subnet_id, cidr_block in zipmap(module.vpc.private_subnets, module.vpc.private_subnets_cidr_blocks) :
@@ -97,26 +101,53 @@ module "eks" {
       # aws ssm get-parameters --names /aws/service/eks/optimized-ami/${var.eks_cluster_version}/amazon-linux-2023/x86_64/standard/recommended/release_version --region us-west-2
       ami_type     = "AL2023_x86_64_STANDARD" # Use this for Graviton AL2023_ARM_64_STANDARD
       min_size     = 2
-      max_size     = 8
+      max_size     = 4
       desired_size = 2
 
       instance_types = ["m6i.large"]
 
       labels = {
-        NodeGroupType = "system-nodegroup"
+        NodeGroupType = "system-nodegrp"
       }
-
-      tags = merge(local.tags, {
-        Name = "system-nodegroup"
-      })
     }
-
-    tags = merge(local.tags, {
-      # NOTE - if creating multiple security groups with this module, only tag the
-      # security group that Karpenter should utilize with the following tag
-      # (i.e. - at most, only one security group should have this tag in your account)
-      "karpenter.sh/discovery" = local.name
-    })
   }
 
+  node_security_group_tags = merge(local.tags, {
+    "karpenter.sh/discovery" = local.name
+  })
+
+  tags = local.tags
+
+}
+
+resource "aws_iam_role_policy_attachment" "cloudwatch_observability_policy_attachment" {
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+  role       = aws_iam_role.cloudwatch_observability_role.name
+}
+
+#---------------------------------------------------------------
+# IAM Role for Amazon CloudWatch Observability
+#---------------------------------------------------------------
+resource "aws_iam_role" "cloudwatch_observability_role" {
+  name_prefix = format("%s-%s", local.name, "cloudwatch-agent")
+  description = "The IAM role for amazon-cloudwatch-observability addon"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Effect = "Allow"
+        Principal = {
+          Federated = module.eks.oidc_provider_arn
+        }
+        Condition = {
+          StringEquals = {
+            "${replace(module.eks.cluster_oidc_issuer_url, "https://", "")}:sub" : "system:serviceaccount:amazon-cloudwatch:cloudwatch-agent",
+            "${replace(module.eks.cluster_oidc_issuer_url, "https://", "")}:aud" : "sts.amazonaws.com"
+          }
+        }
+      }
+    ]
+  })
 }
