@@ -64,16 +64,14 @@ resource "kubectl_manifest" "karpenter_node_class" {
             karpenter.sh/discovery: ${module.eks.cluster_name}
       tags:
         karpenter.sh/discovery: ${module.eks.cluster_name}
+      blockDeviceMappings:
+        - deviceName: /dev/xvda
+          ebs:
+            volumeSize: 100Gi
+            volumeType: gp3
       amiSelectorTerms:
         - alias: al2023@latest # Amazon Linux 2023
-      userData: |
-         MIME-Version: 1.0
-         Content-Type: multipart/mixed; boundary="BOUNDARY"
-         --BOUNDARY
-         Content-Type: text/x-shellscript; charset="us-ascii"
-         #!/bin/bash
-         echo "Running a custom user data script for AL2023"
-         --BOUNDARY--
+      instanceStorePolicy: RAID0
   YAML
 
   depends_on = [
@@ -93,7 +91,7 @@ resource "kubectl_manifest" "karpenter_node_pool" {
         spec:
           nodeClassRef:
             group: karpenter.k8s.aws
-            kind: EC2NodeClas 
+            kind: EC2NodeClass
             name: al2023
           expireAfter: 720h # 30 * 24h = 720h
           requirements:
@@ -113,7 +111,7 @@ resource "kubectl_manifest" "karpenter_node_pool" {
         cpu: 1000
       disruption:
         consolidationPolicy: WhenEmptyOrUnderutilized
-        consolidateAfter: 1m
+        consolidateAfter: 5m
   YAML
 
   depends_on = [
@@ -140,14 +138,7 @@ resource "kubectl_manifest" "gpu" {
         karpenter.sh/discovery: ${module.eks.cluster_name}
       amiSelectorTerms:
         - alias: al2023@latest # Amazon Linux 2023
-      userData: |
-         MIME-Version: 1.0
-         Content-Type: multipart/mixed; boundary="BOUNDARY"
-         --BOUNDARY
-         Content-Type: text/x-shellscript; charset="us-ascii"
-         #!/bin/bash
-         echo "Running a custom user data script for AL2023"
-         --BOUNDARY--
+      instanceStorePolicy: RAID0
   YAML
 
   depends_on = [
@@ -167,7 +158,7 @@ resource "kubectl_manifest" "g5_10g" {
         spec:
           nodeClassRef:
             group: karpenter.k8s.aws
-            kind: EC2NodeClas 
+            kind: EC2NodeClass
             name: gpu
           expireAfter: 720h # 30 * 24h = 720h
           requirements:
@@ -182,12 +173,17 @@ resource "kubectl_manifest" "g5_10g" {
               values: ["nitro"]
             - key: "karpenter.k8s.aws/instance-generation"
               operator: Gt
-              values: ["5"]
+              values: ["4"]
+          taints:
+            - key: nvidia.com/gpu
+              value: "true"
+              effect: NoSchedule
       limits:
         cpu: 1000
+        nvidia.com/gpu: 10
       disruption:
         consolidationPolicy: WhenEmptyOrUnderutilized
-        consolidateAfter: 1m
+        consolidateAfter: 5m
   YAML
 
   depends_on = [

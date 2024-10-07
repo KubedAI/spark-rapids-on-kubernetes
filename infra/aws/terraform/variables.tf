@@ -67,9 +67,9 @@ EOT
 #   default     = false
 # }
 
-# # Enable Volcano for batch scheduling of Spark jobs or other workloads
-# variable "enable_volcano" {
-#   description = "Flag to enable the Volcano batch scheduler on the Kubernetes cluster. Volcano is typically used for high-performance batch job scheduling in AI/ML workloads."
-#   type        = bool
-#   default     = false
-# }
+# Enable Volcano for batch scheduling of Spark jobs or other workloads
+variable "enable_volcano" {
+  description = "Flag to enable the Volcano batch scheduler on the Kubernetes cluster. Volcano is typically used for high-performance batch job scheduling in AI/ML workloads."
+  type        = bool
+  default     = false
+}

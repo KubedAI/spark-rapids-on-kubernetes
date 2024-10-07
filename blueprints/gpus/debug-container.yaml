@@ -1,0 +1,28 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: spark-rapids-debug-pod
+  namespace: default
+spec:
+  containers:
+    - name: debug-container
+      image: public.ecr.aws/data-on-eks/spark-rapids-k8s-cuda:spark-3.5.3_rapids-24.08.1_cuda-11.8_java-8
+      imagePullPolicy: Always  # Ensures the image is always pulled
+      command: ["/bin/bash", "-c", "sleep infinity"]  # Keeps the pod running
+      resources:
+        limits:
+          nvidia.com/gpu: "1"  # Add GPU resources for testing
+      volumeMounts:
+        - name: test-volume
+          mountPath: /tmp  # Example mount point
+  volumes:
+    - name: test-volume
+      hostPath:
+        path: /tmp
+        type: Directory
+  tolerations:
+    - key: "nvidia.com/gpu"
+      operator: "Equal"
+      value: "true"
+      effect: "NoSchedule"
+  restartPolicy: Never
