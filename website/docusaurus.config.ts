@@ -8,18 +8,19 @@ const config: Config = {
   favicon: 'img/favicon.ico',
 
   // Set the production url of your site here
-  url: 'https://kubed.ai',
+  url: 'https://KubedAI.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
-  baseUrl: '/',
+  baseUrl: '/spark-rapids-on-kubernetes/',
 
   // GitHub pages deployment config.
   // If you aren't using GitHub pages, you don't need these.
-  organizationName: 'Kube-dAI', // Usually your GitHub org/user name.
+  organizationName: 'KubedAI', // Usually your GitHub org/user name.
   projectName: 'spark-rapids-on-kubernetes', // Usually your repo name.
 
   onBrokenLinks: 'throw',
   onBrokenMarkdownLinks: 'warn',
+  githubHost: 'github.com',
 
   // Even if you don't use internationalization, you can use this field to set
   // useful metadata like html lang. For example, if your site is Chinese, you
@@ -40,21 +41,6 @@ const config: Config = {
           editUrl:
             'https://github.com/Kube-dAI/spark-rapids-on-kubernetes/tree/main/packages/create-spark-rapids-on-kubernetes/templates/shared/',
         },
-        // blog: {
-        //   showReadingTime: true,
-        //   feedOptions: {
-        //     type: ['rss', 'atom'],
-        //     xslt: true,
-        //   },
-        //   // Please change this to your repo.
-        //   // Remove this to remove the "edit this page" links.
-        //   editUrl:
-        //     'https://github.com/Kube-dAI/spark-rapids-on-kubernetes/tree/main/packages/create-spark-rapids-on-kubernetes/templates/shared/',
-        //   // Useful options to enforce blogging best practices
-        //   onInlineTags: 'warn',
-        //   onInlineAuthors: 'warn',
-        //   onUntruncatedBlogPosts: 'warn',
-        // },
         theme: {
           customCss: './src/css/custom.css',
         },
@@ -66,7 +52,7 @@ const config: Config = {
     // Replace with your project's social card
     image: 'img/spark-rapids-on-kubernetes-social-card.jpg',
     navbar: {
-      title: 'Home',
+      title: 'KubedAI',
       logo: {
         alt: 'Site Logo',
         src: 'img/kubedai-logo.png',
@@ -74,21 +60,9 @@ const config: Config = {
       items: [
         {
           type: 'docSidebar',
-          sidebarId: 'introduction',
+          sidebarId: 'docSidebar',
           position: 'left',
-          label: 'Introduction',
-        },
-        {
-          type: 'docSidebar',
-          sidebarId: 'infrastructure',
-          position: 'left',
-          label: 'Infrastructure Setup',
-        },
-        {
-          type: 'docSidebar',
-          sidebarId: 'blueprints',
-          position: 'left',
-          label: 'Blueprints',
+          label: 'Documentation',
         },
         {
           href: 'https://github.com/KubedAI/spark-rapids-on-kubernetes',
@@ -105,7 +79,7 @@ const config: Config = {
           title: 'Docs',
           items: [
             {
-              label: 'Tutorial',
+              label: 'Documentation',
               to: '/docs/intro',
             },
           ],
@@ -130,10 +104,10 @@ const config: Config = {
         {
           title: 'More',
           items: [
-            {
-              label: 'Blog',
-              to: '/blog',
-            },
+            // {
+            //   label: 'Blog',
+            //   to: '/blog',
+            // },
             {
               label: 'GitHub',
               href: 'https://github.com/KubedAI/spark-rapids-on-kubernetes',
@@ -141,7 +115,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} Kubed.ai`,
+      copyright: `Copyright © ${new Date().getFullYear()} KubedAI`,
     },
     prism: {
       theme: prismThemes.github,
