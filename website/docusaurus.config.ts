@@ -52,7 +52,7 @@ const config: Config = {
     // Replace with your project's social card
     image: 'img/spark-rapids-on-kubernetes-social-card.jpg',
     navbar: {
-      title: 'Home',
+      title: 'KubedAI',
       logo: {
         alt: 'Site Logo',
         src: 'img/kubedai-logo.png',
@@ -60,21 +60,9 @@ const config: Config = {
       items: [
         {
           type: 'docSidebar',
-          sidebarId: 'introduction',
+          sidebarId: 'docSidebar',
           position: 'left',
-          label: 'Introduction',
-        },
-        {
-          type: 'docSidebar',
-          sidebarId: 'infrastructure',
-          position: 'left',
-          label: 'Infrastructure Setup',
-        },
-        {
-          type: 'docSidebar',
-          sidebarId: 'blueprints',
-          position: 'left',
-          label: 'Blueprints',
+          label: 'Documentation',
         },
         {
           href: 'https://github.com/KubedAI/spark-rapids-on-kubernetes',
@@ -91,8 +79,8 @@ const config: Config = {
           title: 'Docs',
           items: [
             {
-              label: 'Tutorial',
-              to: '/docs/introduction',
+              label: 'Documentation',
+              to: '/docs/intro',
             },
           ],
         },
