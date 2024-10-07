@@ -4,46 +4,39 @@ import styles from './styles.module.css';
 
 type FeatureItem = {
   title: string;
-  Svg: React.ComponentType<React.ComponentProps<'svg'>>;
   description: JSX.Element;
 };
 
 const FeatureList: FeatureItem[] = [
   {
-    title: 'Enable GPU-accelerated data science workflows',
-    Svg: require('@site/static/img/undraw_docusaurus_mountain.svg').default,
+    title: 'GPU-Accelerated Spark',
     description: (
       <>
-        RAPIDS, a project developed by NVIDIA, comprises a suite of open-source libraries that are hinged upon CUDA, thereby enabling GPU-accelerated data science workflows
+        Leverage NVIDIA's RAPIDS to accelerate Spark-based ETL, machine learning, and AI workloads using GPUs, dramatically reducing processing times.
       </>
     ),
   },
   {
-    title: 'Experience unparralel performance boost in your data processing workflows',
-    Svg: require('@site/static/img/undraw_docusaurus_tree.svg').default,
+    title: 'Unmatched Data and ML Performance',
     description: (
       <>
-        Experience a performance boost in data preparation tasks, allowing you to transition quickly to the subsequent stages of your pipeline..
+        Achieve up to 10x faster performance in data and machine learning tasks, optimizing operations like sorting, joining, and aggregation.
       </>
     ),
   },
   {
-    title: 'Powered by NVIDIA GPU Architecture',
-    Svg: require('@site/static/img/undraw_docusaurus_react.svg').default,
+    title: 'Scalability with Kubernetes',
     description: (
       <>
-        A transformative parallel computing platform designed for enhancing computational processes on NVIDIA's GPU architecture.
+        Run and scale Spark RAPIDS jobs efficiently with Kubernetes, ensuring dynamic resource allocation and high availability for GPU-accelerated workflows.
       </>
     ),
   },
 ];
 
-function Feature({title, Svg, description}: FeatureItem) {
+function Feature({title, description}: FeatureItem) {
   return (
-    <div className={clsx('col col--4')}>
-      <div className="text--center">
-        <Svg className={styles.featureSvg} role="img" />
-      </div>
+    <div className={clsx('col col--4', styles.centerContent)}>
       <div className="text--center padding-horiz--md">
         <Heading as="h3">{title}</Heading>
         <p>{description}</p>
@@ -55,7 +48,7 @@ function Feature({title, Svg, description}: FeatureItem) {
 export default function HomepageFeatures(): JSX.Element {
   return (
     <section className={styles.features}>
-      <div className="container">
+      <div className={clsx('container', styles.centerWrapper)}>
         <div className="row">
           {FeatureList.map((props, idx) => (
             <Feature key={idx} {...props} />

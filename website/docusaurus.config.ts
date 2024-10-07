@@ -52,7 +52,7 @@ const config: Config = {
     // Replace with your project's social card
     image: 'img/spark-rapids-on-kubernetes-social-card.jpg',
     navbar: {
-      title: 'KubedAI',
+      title: 'Kube-dAI',
       logo: {
         alt: 'Site Logo',
         src: 'img/kubedai-logo.png',
@@ -62,7 +62,7 @@ const config: Config = {
           type: 'docSidebar',
           sidebarId: 'docSidebar',
           position: 'left',
-          label: 'Documentation',
+          label: 'Docs',
         },
         {
           href: 'https://github.com/KubedAI/spark-rapids-on-kubernetes',
@@ -88,26 +88,14 @@ const config: Config = {
           title: 'Community',
           items: [
             {
-              label: 'Stack Overflow',
-              href: 'https://stackoverflow.com/questions/tagged/spark-rapids-on-kubernetes',
-            },
-            {
               label: 'Discord',
-              href: 'https://discordapp.com/invite/spark-rapids-on-kubernetes',
-            },
-            {
-              label: 'Twitter',
-              href: 'https://twitter.com/spark-rapids-on-kubernetes',
+              href: 'https://discord.gg/JFx6A6ms',
             },
           ],
         },
         {
           title: 'More',
           items: [
-            // {
-            //   label: 'Blog',
-            //   to: '/blog',
-            // },
             {
               label: 'GitHub',
               href: 'https://github.com/KubedAI/spark-rapids-on-kubernetes',
@@ -115,7 +103,7 @@ const config: Config = {
           ],
         },
       ],
-      copyright: `Copyright © ${new Date().getFullYear()} KubedAI`,
+      copyright: `Copyright © ${new Date().getFullYear()} Kube-dAI`,
     },
     prism: {
       theme: prismThemes.github,

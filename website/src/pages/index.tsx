@@ -20,7 +20,7 @@ function HomepageHeader() {
           <Link
             className="button button--secondary button--lg"
             to="/docs/intro">
-            Get started with Spark-RAPIDS on Kubernetes - 15min ⏱️
+            Quick Start with Spark-RAPIDS – 15 Min ⏱️
           </Link>
         </div>
       </div>
