@@ -1,7 +1,14 @@
+# spark.plugins: Set to "com.nvidia.spark.SQLPlugin", which is the RAPIDS SQL plugin that enables GPU acceleration.
+# spark.rapids.sql.enabled: Set to "true", enabling RAPIDS acceleration for Spark SQL.
+# spark.executor.resource.gpu.amount and spark.task.resource.gpu.amount: These are configured to allocate 1 GPU per executor and per task, ensuring tasks are run on GPUs.
+# spark.rapids.sql.concurrentGpuTasks: Limits the number of concurrent tasks per GPU to control GPU utilization.
+# Other configurations like spark.rapids.memory.pinnedPool.size help with managing GPU memory.
+
 import logging
 from pyspark.sql import SparkSession
 from pyspark import SparkConf
 from pyspark.sql.functions import col, rand, expr
+import time
 
 # Setup logging
 logging.basicConfig(level=logging.INFO)
@@ -29,14 +36,14 @@ logger.info("Spark session initialized successfully (GPU-only).")
 
 # Generate large DataFrames for GPU-based processing
 logger.info("Creating large DataFrames with multiple columns for join operation...")
-df1 = spark.range(0, 10000000).toDF("id1") \
-    .withColumn("value1", rand()) \
+df1 = spark.range(0, 100000000).toDF("id1")  # Increased data size
+df1 = df1.withColumn("value1", rand()) \
     .withColumn("category1", expr("CASE WHEN rand() > 0.5 THEN 'A' ELSE 'B' END")) \
     .withColumn("amount1", expr("rand() * 1000")) \
     .withColumn("quantity1", expr("CAST(rand() * 100 AS INT)"))
 
-df2 = spark.range(0, 10000000).toDF("id2") \
-    .withColumn("value2", rand()) \
+df2 = spark.range(0, 100000000).toDF("id2")  # Increased data size
+df2 = df2.withColumn("value2", rand()) \
     .withColumn("category2", expr("CASE WHEN rand() > 0.5 THEN 'X' ELSE 'Y' END")) \
     .withColumn("amount2", expr("rand() * 2000")) \
     .withColumn("quantity2", expr("CAST(rand() * 200 AS INT)"))
@@ -53,6 +60,13 @@ aggregated_df = joined_df.groupBy("category1", "category2").agg(
     expr("avg(quantity1) as avg_quantity1"),
     expr("avg(quantity2) as avg_quantity2")
 )
+
+# Additional iterative computation to increase execution time
+logger.info("Performing additional computations to extend job duration...")
+for i in range(10):
+    logger.info(f"Iteration {i + 1} of additional transformations...")
+    aggregated_df = aggregated_df.withColumn("total_amount_diff", col("total_amount1") - col("total_amount2"))
+    aggregated_df = aggregated_df.withColumn("amount_ratio", col("total_amount1") / col("total_amount2"))
 
 # Explain the GPU execution plan for debugging and validation
 logger.info("Running SQL query with aggregation and filtering, explaining execution plan...")
@@ -73,6 +87,10 @@ results = spark.sql("""
     ORDER BY total_amount1 DESC
 """)
 results.show()
+
+# Add a sleep step to ensure the job runs for at least 10 minutes
+logger.info("Ensuring job runs for 10 minutes...")
+time.sleep(600)  # Sleep for 10 minutes (600 seconds)
 
 # Stop the Spark session
 logger.info("Stopping the Spark session.")

@@ -8,7 +8,7 @@ spec:
   type: Python
   pythonVersion: "3"
   mode: cluster
-  image: "public.ecr.aws/data-on-eks/spark-rapids-k8s-cuda:spark-3.5.1_rapids-24.08.1_cuda-11.8_java-8"  # Replace with your image URI
+  image: kubedai/spark-rapids-k8s-cuda:spark-3.5.1_rapids-24.08.1_cuda-11.8_java-8  # Replace with your image URI
   imagePullPolicy: Always
   mainApplicationFile: "local:///opt/sparkRapidsPlugin/gpu_rapids_performance_test.py" # Change this to S3 path
   mainClass: org.apache.spark.deploy.PythonRunner

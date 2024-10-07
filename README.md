@@ -1,5 +1,12 @@
 # Spark RAPIDS on Kubernetes
 
+## ⚠️🚧 WARNING: Work in Progress 🚧⚠️
+
+    This project is currently under active development and is not yet in a stable or complete state. Features and functionality may change at any time, and the project may not work as expected.
+
+    Please use with caution and feel free to contribute or provide feedback as we continue to improve the project. Thank you for your understanding and support!
+
+
 **Accelerating Data Processing Workloads with GPUs using Apache Spark and NVIDIA RAPIDS on Kubernetes**
 
 ## 🚀 Overview
@@ -20,7 +27,7 @@ The project provides infrastructure templates, deployment blueprints, and exampl
 ```
 .
 ├── README.md
-├── blueprints
+├── examples
 ├── infra
 ├── scripts
 ├── website
