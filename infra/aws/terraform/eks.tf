@@ -109,16 +109,6 @@ module "eks" {
       labels = {
         NodeGroupType = "system-nodegrp"
       }
-
-      # taints = {
-      #   # The pods that do not tolerate this taint should run on nodes
-      #   # created by Karpenter
-      #   karpenter = {
-      #     key    = "CriticalAddonsOnly"
-      #     value  = "true"
-      #     effect = "NO_SCHEDULE"
-      #   }
-      # }
     }
   }
 

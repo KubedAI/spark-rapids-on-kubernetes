@@ -1,23 +1,4 @@
-
-
-# FluentBit
-# Prometheus
-# Spark History Server
-
-# #---------------------------------------------------------------
-# # EKS Blueprints Addons
-# #---------------------------------------------------------------
-# module "eks_blueprints_addons" {
-#   source  = "aws-ia/eks-blueprints-addons/aws"
-#   version = "~> 1.16"
-
-
-#   cluster_name      = module.eks.cluster_name
-#   cluster_endpoint  = module.eks.cluster_endpoint
-#   cluster_version   = module.eks.cluster_version
-#   oidc_provider_arn = module.eks.oidc_provider_arn
-
-# }
+# TODO: Add FluentBit, Prometheus & Grafana and Spark History Server
 
 #---------------------------------------------------------------
 # Data on EKS Kubernetes Addons
@@ -52,7 +33,7 @@ module "eks_data_addons" {
     version = "2.0.1"
   }
 
-  enable_yunikorn = true
+  enable_yunikorn = var.enable_yunikorn
   yunikorn_helm_config = {
     version = "1.6.0"
   }
