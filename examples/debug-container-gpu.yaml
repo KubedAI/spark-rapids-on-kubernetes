@@ -6,7 +6,7 @@ metadata:
 spec:
   containers:
     - name: debug-container
-      image: public.ecr.aws/data-on-eks/spark-rapids-k8s-cuda:spark-3.5.3_rapids-24.08.1_cuda-11.8_java-8
+      image: kubedai/spark-rapids-k8s-cuda:spark-3.5.1_rapids-24.08.1_cuda-11.8_java-8
       imagePullPolicy: Always  # Ensures the image is always pulled
       command: ["/bin/bash", "-c", "sleep infinity"]  # Keeps the pod running
       resources:
