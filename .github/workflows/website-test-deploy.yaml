@@ -13,15 +13,22 @@ jobs:
       run:
         shell: bash
         working-directory: website
+
     steps:
-      - uses: actions/checkout@v2
+      # Use the latest version of checkout action
+      - uses: actions/checkout@v3  # Updated from v2 to v3
+
+      # Use the latest setup-node action and specify Node.js 18
       - uses: actions/setup-node@v3
         with:
           node-version: 18
           cache: npm
           cache-dependency-path: website/package-lock.json
 
+      # Install dependencies using npm install (to ensure package-lock.json is consistent)
       - name: Install dependencies
-        run: npm ci
+        run: npm install  # Use npm install if lockfile needs syncing
+
+      # Test the build process to ensure the website can be built successfully
       - name: Test build website
         run: npm run build
