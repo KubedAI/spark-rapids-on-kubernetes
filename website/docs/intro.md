@@ -5,4 +5,4 @@ sidebar_label: Getting Started
 import siteConfig from '/docusaurus.config.ts';
 import CodeBlock from '@theme/CodeBlock';
 
-# Getting Started with SPARK RAPIDS
+# Getting Started with Spark RAPIDS
