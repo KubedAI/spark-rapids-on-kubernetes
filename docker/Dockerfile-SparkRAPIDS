@@ -12,7 +12,7 @@ ARG SPARK_VERSION=3.5.1
 ARG RAPIDS_VERSION=24.08.1
 ARG HADOOP_VERSION=3.3.4    # Compatible with Spark 3.5.1
 ARG AWS_SDK_VERSION=1.12.773 # Compatible with Hadoop 3.x
-ARG SPARK_UID=185
+ARG SPARK_UID=1001
 ARG TINI_VERSION=v0.18.0
 ARG JAVA_VERSION=openjdk-8
 
@@ -95,9 +95,8 @@ ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /usr/
 RUN chmod +rx /usr/bin/tini
 
 # -------------------------------------------------------------------
-# Copy test.py to the container
+# Copy gpu_rapids_performance_test.py to the container
 # -------------------------------------------------------------------
-COPY test.py /opt/sparkRapidsPlugin/test.py
 COPY gpu_rapids_performance_test.py /opt/sparkRapidsPlugin/gpu_rapids_performance_test.py
 
 # -------------------------------------------------------------------

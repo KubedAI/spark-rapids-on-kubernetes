@@ -88,6 +88,9 @@ resource "kubectl_manifest" "karpenter_node_pool" {
       name: default
     spec:
       template:
+        metadata:
+          labels:
+            node-type: default
         spec:
           nodeClassRef:
             group: karpenter.k8s.aws
@@ -98,6 +101,49 @@ resource "kubectl_manifest" "karpenter_node_pool" {
             - key: "karpenter.k8s.aws/instance-category"
               operator: In
               values: ["c", "m", "r"]
+            - key: "karpenter.k8s.aws/instance-cpu"
+              operator: In
+              values: ["4", "8", "16", "32"]
+            - key: "karpenter.k8s.aws/instance-hypervisor"
+              operator: In
+              values: ["nitro"]
+            - key: "karpenter.k8s.aws/instance-generation"
+              operator: Gt
+              values: ["2"]
+      limits:
+        cpu: 1000
+      disruption:
+        consolidationPolicy: WhenEmptyOrUnderutilized
+        consolidateAfter: 5m
+  YAML
+
+  depends_on = [
+    kubectl_manifest.karpenter_node_class
+  ]
+}
+
+# NVMe SSD Nodepool using the AL2023 NodeClass
+resource "kubectl_manifest" "nvme_ssd_x86" {
+  yaml_body = <<-YAML
+    apiVersion: karpenter.sh/v1
+    kind: NodePool
+    metadata:
+      name: ssd-x86
+    spec:
+      template:
+        metadata:
+          labels:
+            node-type: ssd-x86
+        spec:
+          nodeClassRef:
+            group: karpenter.k8s.aws
+            kind: EC2NodeClass
+            name: al2023
+          expireAfter: 720h # 30 * 24h = 720h
+          requirements:
+            - key: "karpenter.k8s.aws/instance-family"
+              operator: In
+              values: ["c5d", "m5d", "r5d"]
             - key: "karpenter.k8s.aws/instance-cpu"
               operator: In
               values: ["4", "8", "16", "32"]
@@ -147,14 +193,18 @@ resource "kubectl_manifest" "gpu" {
 }
 
 # Create a default NodePool referencing the GPU NodeClass
-resource "kubectl_manifest" "g5_10g" {
+# Create GPU instaces with 1 GPU. e.g., g5x.large to g5.16xlarge
+resource "kubectl_manifest" "g_a10g_single" {
   yaml_body = <<-YAML
     apiVersion: karpenter.sh/v1
     kind: NodePool
     metadata:
-      name: g5-a10g
+      name: g-a10g-single
     spec:
       template:
+        metadata:
+          labels:
+            node-type: g-a10g-single
         spec:
           nodeClassRef:
             group: karpenter.k8s.aws
@@ -162,18 +212,21 @@ resource "kubectl_manifest" "g5_10g" {
             name: gpu
           expireAfter: 720h # 30 * 24h = 720h
           requirements:
+            - key: "karpenter.k8s.aws/instance-gpu-count"
+              operator: In
+              values: ["1"]
             - key: "karpenter.k8s.aws/instance-category"
               operator: In
               values: ["g"]
             - key: "karpenter.k8s.aws/instance-cpu"
               operator: In
-              values: ["4", "8", "16", "32", "48", "64", "96", "192"]
+              values: ["4", "8", "16", "32", "64"]
             - key: "karpenter.k8s.aws/instance-hypervisor"
               operator: In
               values: ["nitro"]
-            - key: "karpenter.k8s.aws/instance-generation"
-              operator: Gt
-              values: ["4"]
+            - key: "karpenter.k8s.aws/instance-family"
+              operator: In
+              values: ["g5", "g6"]
           taints:
             - key: nvidia.com/gpu
               value: "true"
@@ -181,6 +234,57 @@ resource "kubectl_manifest" "g5_10g" {
       limits:
         cpu: 1000
         nvidia.com/gpu: 10
+      disruption:
+        consolidationPolicy: WhenEmptyOrUnderutilized
+        consolidateAfter: 5m
+  YAML
+
+  depends_on = [
+    kubectl_manifest.gpu
+  ]
+}
+
+# Create a GPU Nodepool for MultiGPU Node
+resource "kubectl_manifest" "g_a10g_multigpu" {
+  yaml_body = <<-YAML
+    apiVersion: karpenter.sh/v1
+    kind: NodePool
+    metadata:
+      name: g-a10g-multigpu
+    spec:
+      template:
+        metadata:
+          labels:
+            node-type: g-a10g-multigpu
+        spec:
+          nodeClassRef:
+            group: karpenter.k8s.aws
+            kind: EC2NodeClass
+            name: gpu
+          expireAfter: 720h # 30 * 24h = 720h
+          requirements:
+            - key: "karpenter.k8s.aws/instance-gpu-count"
+              operator: Gt
+              values: ["1"]
+            - key: "karpenter.k8s.aws/instance-category"
+              operator: In
+              values: ["g"]
+            - key: "karpenter.k8s.aws/instance-cpu"
+              operator: In
+              values: ["48", "96", "192"]
+            - key: "karpenter.k8s.aws/instance-hypervisor"
+              operator: In
+              values: ["nitro"]
+            - key: "karpenter.k8s.aws/instance-family"
+              operator: In
+              values: ["g5", "g6"]
+          taints:
+            - key: nvidia.com/gpu
+              value: "true"
+              effect: NoSchedule
+      limits:
+        cpu: 1000
+        nvidia.com/gpu: 16
       disruption:
         consolidationPolicy: WhenEmptyOrUnderutilized
         consolidateAfter: 5m

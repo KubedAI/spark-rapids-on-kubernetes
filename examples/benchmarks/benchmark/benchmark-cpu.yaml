@@ -1,0 +1,102 @@
+# Replace <S3_BUCKET> with the bucket name created by the blueprint. Checkout the values form `terraform output`
+# Copy the PySpark script to S3 bucket
+# aws s3 cp examples/benchmarks/benchmark/spark-rapids-benchmarks.py s3://<S3_BUCKET>/benchmark/scripts/
+---
+apiVersion: "sparkoperator.k8s.io/v1beta2"
+kind: SparkApplication
+metadata:
+  name: spark-benchmark-cpu
+  namespace: data-eng-team
+spec:
+  type: Python
+  pythonVersion: "3"
+  mode: cluster
+  image: kubedai/spark:spark-3.5.1_hadoop-3.3.4_aws-sdk-1.12.773  # working image for the demo
+  imagePullPolicy: Always
+  mainApplicationFile: "s3a://<S3_BUCKET>/benchmark/scripts/spark-rapids-benchmarks.py"  # Main Python script for benchmarking
+  arguments:
+    - "s3a://<S3_BUCKET>/benchmark/input"    # Input path (data generated earlier)
+    - "s3a://<S3_BUCKET>/benchmark/output/cpu"   # Output path for benchmark results
+  sparkVersion: "3.5.1"
+  restartPolicy:
+    type: Never
+  hadoopConf:
+    "fs.s3a.aws.credentials.provider": "com.amazonaws.auth.WebIdentityTokenCredentialsProvider"
+    "fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem"
+    "mapreduce.fileoutputcommitter.algorithm.version": "2"
+  sparkConf:
+    "spark.app.name": "spark-benchmark-cpu"
+    "spark.kubernetes.driver.pod.name": "spark-benchmark-cpu"
+    "spark.kubernetes.executor.podNamePrefix": "spark-benchmark-cpu"
+    "spark.speculation": "false"
+    "spark.network.timeout": "2400"
+    "spark.hadoop.fs.s3a.connection.timeout": "1200000"
+    "spark.hadoop.fs.s3a.path.style.access": "true"
+    "spark.hadoop.fs.s3a.connection.maximum": "200"
+    "spark.hadoop.fs.s3a.fast.upload": "true"
+    "spark.hadoop.fs.s3a.readahead.range": "256K"
+    "spark.hadoop.fs.s3a.input.fadvise": "random"
+    "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem"
+    "spark.local.dir": "/data1"
+    "spark.jars.ivy": "/home/spark/.ivy2"
+    "spark.sql.files.maxPartitionBytes": "512m"
+    "spark.sql.shuffle.partitions": "200"
+    "spark.dynamicAllocation.enabled": "false"
+  driver:
+    cores: 1
+    coreLimit: "1200m"
+    memory: "4g"
+    labels:
+      version: "3.5.1"
+    securityContext:
+      runAsUser: 1001
+    serviceAccount: data-eng-team
+    nodeSelector:
+      node-type: ssd-x86
+      karpenter.sh/capacity-type: on-demand
+    volumeMounts:
+      - name: "test-volume"
+        mountPath: "/tmp"
+    volumeMounts:
+      - name: spark-local-dir-1
+        mountPath: /data1
+        readOnly: false
+    initContainers:
+      - name: volume-permission
+        image: public.ecr.aws/docker/library/busybox
+        command: ['sh', '-c', 'mkdir -p /data1 && ls -l /data1 && chown -R 1001:1001 /data1']
+        volumeMounts:
+          - name: spark-local-dir-1
+            mountPath: /data1
+            readOnly: false
+  executor:
+    cores: 4
+    instances: 2  # Adjust based on workload size
+    memory: "10g"
+    labels:
+      version: "3.5.1"
+    securityContext:
+      runAsUser: 1001
+    serviceAccount: data-eng-team
+    nodeSelector:
+      node-type: ssd-x86
+      karpenter.sh/capacity-type: spot
+    volumeMounts:
+      - name: spark-local-dir-1
+        mountPath: /data1
+    initContainers:
+      - name: volume-permission
+        image: public.ecr.aws/docker/library/busybox
+        command: ['sh', '-c', 'mkdir -p /data1; chown -R 1001:1001 /data1']
+        volumeMounts:
+          - name: spark-local-dir-1
+            mountPath: /data1
+  volumes:
+    - name: spark-local-dir-1
+      hostPath:
+        path: "/mnt/k8s-disks/0"
+        type: DirectoryOrCreate
+    - name: "test-volume"
+      hostPath:
+        path: "/tmp"
+        type: Directory

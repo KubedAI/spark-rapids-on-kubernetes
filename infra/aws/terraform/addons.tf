@@ -31,6 +31,24 @@ module "eks_data_addons" {
   enable_spark_operator = true
   spark_operator_helm_config = {
     version = "2.0.1"
+    values = [
+      <<-EOT
+        spark:
+          # -- List of namespaces where to run spark jobs.
+          # If empty string is included, all namespaces will be allowed.
+          # Make sure the namespaces have already existed.
+          jobNamespaces:
+            - default
+            - data-eng-team
+            - data-science-team
+          serviceAccount:
+            # -- Specifies whether to create a service account for the controller.
+            create: false
+          rbac:
+            # -- Specifies whether to create RBAC resources for the controller.
+            create: false
+      EOT
+    ]
   }
 
   enable_yunikorn = var.enable_yunikorn
