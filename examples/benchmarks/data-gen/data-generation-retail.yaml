@@ -1,0 +1,103 @@
+# Replace <S3_BUCKET> with the bucket name created by the blueprint. Checkout the values form `terraform output`
+# Copy the PySpark script to S3 bucket
+# aws s3 cp examples/benchmarks/data-generation-retail.py s3://<S3_BUCKET>/benchmark/scripts/
+---
+apiVersion: "sparkoperator.k8s.io/v1beta2"
+kind: SparkApplication
+metadata:
+  name: spark-data-generation
+  namespace: data-eng-team
+spec:
+  type: Python
+  pythonVersion: "3"
+  mode: cluster
+  image: public.ecr.aws/data-on-eks/spark3.3.1-hadoop3.2-aws-java-sdk-bundle-1.12.647  # Replace with your image URI
+  imagePullPolicy: Always
+  mainApplicationFile: "s3a://<S3_BUCKET>/benchmark/scripts/data-generation-retail.py"  # Main Python script
+  arguments:
+    - "s3a://<S3_BUCKET>/benchmark/input"
+    - "1000000000"  # 1000 million - num_rows_large for sales table generetes 60GB sales data
+    - "100000000"   # 100 million - num_rows_small for customer table - Creates 6GB Data
+    - "100000"      # 100k - num_rows_product for product table - Creates 5MB data
+  sparkVersion: "3.3.1"
+  restartPolicy:
+    type: Never
+  hadoopConf:
+    "fs.s3a.aws.credentials.provider": "com.amazonaws.auth.WebIdentityTokenCredentialsProvider"
+    "fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem"
+    "mapreduce.fileoutputcommitter.algorithm.version": "2"
+  sparkConf:
+    "spark.app.name": "spark-data-gen"
+    "spark.kubernetes.driver.pod.name": "spark-data-gen"
+    "spark.kubernetes.executor.podNamePrefix": "spark-data-gen"
+    "spark.speculation": "false"
+    "spark.network.timeout": "2400"
+    "spark.hadoop.fs.s3a.connection.timeout": "1200000"
+    "spark.hadoop.fs.s3a.path.style.access": "true"
+    "spark.hadoop.fs.s3a.connection.maximum": "200"
+    "spark.hadoop.fs.s3a.fast.upload": "true"
+    "spark.hadoop.fs.s3a.readahead.range": "256K"
+    "spark.hadoop.fs.s3a.input.fadvise": "random"
+    "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem"
+    "spark.local.dir": "/data1"
+    "spark.sql.files.maxPartitionBytes": "512m"
+    "spark.sql.shuffle.partitions": "200"
+    "spark.hadoop.security.authentication": "simple"
+    "spark.hadoop.security.authorization": "false"
+  driver:
+    cores: 1
+    coreLimit: "1200m"
+    memory: "4g"
+    labels:
+      version: "3.3.1"
+    serviceAccount: data-eng-team
+    nodeSelector:
+      node-type: default
+      karpenter.sh/capacity-type: on-demand
+    volumeMounts:
+      - name: "test-volume"
+        mountPath: "/tmp"
+    # Investigate as Volume mount on driver is not working for /data1. Throwing an error saying that unable to create /data1 folder
+    # Issue could be due to Webhook is not ready to mount the volume
+    # volumeMounts:
+    #   - name: spark-local-dir-1
+    #     mountPath: /data1
+    #     readOnly: false
+    # initContainers:
+    #   - name: volume-permission
+    #     image: public.ecr.aws/docker/library/busybox
+    #     command: ['sh', '-c', 'mkdir -p /data1 && ls -l /data1 && chown -R 1001:1001 /data1']
+    #     volumeMounts:
+    #       - name: spark-local-dir-1
+    #         mountPath: /data1
+    #         readOnly: false
+  executor:
+    cores: 2
+    instances: 2  # Use multiple executors for faster data generation
+    memory: "8g"
+    labels:
+      version: "3.3.1"
+    serviceAccount: data-eng-team
+    nodeSelector:
+      node-type: ssd-x86
+      karpenter.sh/capacity-type: spot
+    volumeMounts:
+      - name: spark-local-dir-1
+        mountPath: /data1
+        readOnly: false
+    initContainers:
+      - name: volume-permission
+        image: public.ecr.aws/docker/library/busybox
+        command: ['sh', '-c', 'mkdir -p /data1 && ls -l /data1 && chown -R 1001:1001 /data1']
+        volumeMounts:
+          - name: spark-local-dir-1
+            mountPath: /data1
+  volumes:
+    - name: spark-local-dir-1
+      hostPath:
+        path: "/mnt/k8s-disks/0"
+        type: DirectoryOrCreate
+    - name: test-volume
+      hostPath:
+        path: "/tmp"
+        type: DirectoryOrCreate

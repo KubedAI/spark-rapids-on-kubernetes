@@ -2,7 +2,7 @@ apiVersion: "sparkoperator.k8s.io/v1beta2"
 kind: SparkApplication
 metadata:
   name: spark-rapids-yunikorn
-  namespace: default
+  namespace: data-eng-team
 spec:
   batchScheduler: yunikorn
   batchSchedulerOptions:
@@ -12,14 +12,14 @@ spec:
   mode: cluster
   image: kubedai/spark-rapids-k8s-cuda:spark-3.5.1_rapids-24.08.1_cuda-11.8_java-8  # Replace with your image URI
   imagePullPolicy: Always
-  mainApplicationFile: "local:///opt/sparkRapidsPlugin/gpu_rapids_performance_test.py" # Change this to S3 path
+  mainApplicationFile: "local:///opt/sparkRapidsPlugin/gpu_rapids_performance_test.py"
   mainClass: org.apache.spark.deploy.PythonRunner
   sparkVersion: "3.5.1"
   restartPolicy:
     type: Never
   sparkConf:
     "spark.ui.port": "4045"
-    "spark.rapids.sql.concurrentGpuTasks": "2" # Tweak this to 2
+    "spark.rapids.sql.concurrentGpuTasks": "2"
     "spark.executor.resource.gpu.amount": "1"
     "spark.task.resource.gpu.amount": "1"
     "spark.executor.memory": "10g"
@@ -34,18 +34,15 @@ spec:
     "spark.executor.extraLibraryPath": "/usr/local/cuda/lib:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:/usr/local/cuda/targets/x86_64-linux/lib:/usr/lib/hadoop/lib/native:/usr/lib/hadooplzo/lib/native:/docker/usr/lib/hadoop/lib/native:/docker/usr/lib/hadoop-lzo/lib/native"
     "spark.task.cpus": "1"
     "spark.dynamicAllocation.enabled": "false"
-    # "spark.rapids.cloudSchemes": "s3,s3a,gs"  # Optional for cloud file systems
-    # "spark.rapids.memory.gpu.maxAllocFraction": "0.9"  # Optional memory tuning
-    # "spark.rapids.sql.batchSizeBytes": "512m"  # Optional batch size tuning
-    # "spark.rapids.sql.multiThreadedRead.numThreads": "20"  # Tuning thread count for parallel reads
-    # "spark.rapids.sql.shuffle.spillThreads": "8"  # Optional tuning for shuffle spill threads
   driver:
     cores: 1
     coreLimit: "1200m"
     memory: "2g"
     labels:
       version: "3.5.1"
-    serviceAccount: spark-operator-spark # default one
+    serviceAccount: data-eng-team
+    securityContext:
+      runAsUser: 185
     volumeMounts:
       - name: "test-volume"
         mountPath: "/tmp"
@@ -58,6 +55,9 @@ spec:
       quantity: 1
     labels:
       version: "3.5.1"
+    serviceAccount: data-eng-team
+    securityContext:
+      runAsUser: 185
     volumeMounts:
       - name: spark-local-dir-1
         mountPath: /data1

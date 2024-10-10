@@ -1,0 +1,139 @@
+# Replace <S3_BUCKET> with the bucket name created by the blueprint. Checkout the values form `terraform output`
+# Copy the PySpark script to S3 bucket
+# aws s3 cp examples/benchmarks/benchmark/spark-rapids-benchmarks.py s3://<S3_BUCKET>/benchmark/scripts/
+---
+apiVersion: "sparkoperator.k8s.io/v1beta2"
+kind: SparkApplication
+metadata:
+  name: spark-rapids-benchmark-1gpu
+  namespace: data-eng-team
+spec:
+  type: Python
+  pythonVersion: "3"
+  mode: cluster
+  image: kubedai/spark-rapids-k8s-cuda:spark-3.5.1_rapids-24.08.1_cuda-11.8_java-8  # Replace with your image URI
+  imagePullPolicy: Always
+  mainApplicationFile: "s3a://<S3_BUCKET>/benchmark/scripts/spark-rapids-benchmarks.py"  # Main Python script for benchmarking
+  arguments:
+    - "s3a://<S3_BUCKET>/benchmark/input"    # Input path (data generated earlier)
+    - "s3a://<S3_BUCKET>/benchmark/output/gpu"   # Output path for benchmark results
+  sparkVersion: "3.5.1"
+  restartPolicy:
+    type: Never
+  hadoopConf:
+    "fs.s3a.aws.credentials.provider": "com.amazonaws.auth.WebIdentityTokenCredentialsProvider"
+    "fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem"
+    "mapreduce.fileoutputcommitter.algorithm.version": "2"
+  sparkConf:
+    "spark.app.name": "spark-benchmark-gpu"
+    "spark.kubernetes.driver.pod.name": "spark-benchmark-gpu"
+    "spark.kubernetes.executor.podNamePrefix": "spark-benchmark-gpu"
+    "spark.speculation": "false"
+    "spark.network.timeout": "2400"
+    "spark.hadoop.fs.s3a.connection.timeout": "1200000"
+    "spark.hadoop.fs.s3a.path.style.access": "true"
+    "spark.hadoop.fs.s3a.connection.maximum": "200"
+    "spark.hadoop.fs.s3a.fast.upload": "true"
+    "spark.hadoop.fs.s3a.readahead.range": "256K"
+    "spark.hadoop.fs.s3a.input.fadvise": "random"
+    "spark.hadoop.fs.s3a.impl": "org.apache.hadoop.fs.s3a.S3AFileSystem"
+    "spark.local.dir": "/data1"
+    "spark.dynamicAllocation.enabled": "false"
+    "spark.ui.port": "4045"
+    
+    "spark.rapids.sql.concurrentGpuTasks": "4" # 2 tasks on g6.4x large takes 32 mins and 4 tasks takes: 
+    "spark.executor.resource.gpu.amount": "1"
+    "spark.rapids.memory.pinnedPool.size": "2g"
+    "spark.executor.memoryOverhead": "3g"
+    "spark.sql.files.maxPartitionBytes": "512m"
+    "spark.sql.shuffle.partitions": "10"
+    "spark.plugins": "com.nvidia.spark.SQLPlugin"
+    "spark.shuffle.manager": "com.nvidia.spark.rapids.spark351.RapidsShuffleManager"
+    "spark.executor.resource.gpu.discoveryScript": "/opt/sparkRapidsPlugin/getGpusResources.sh"
+    "spark.executor.resource.gpu.vendor": "nvidia.com"
+    "spark.executor.extraLibraryPath": "/usr/local/cuda/lib:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:/usr/local/cuda/targets/x86_64-linux/lib:/usr/lib/hadoop/lib/native:/usr/lib/hadooplzo/lib/native:/docker/usr/lib/hadoop/lib/native:/docker/usr/lib/hadoop-lzo/lib/native"
+    "spark.task.cpus": "4"
+    "spark.dynamicAllocation.enabled": "false"
+    "spark.rapids.sql.enabled": "true"
+    "spark.rapids.cloudSchemes": "s3a"
+    "spark.rapids.memory.gpu.pool": "ASYNC"
+    "spark.rapids.memory.gpu.allocFraction": "0.8"  # Adjusted to avoid exceeding GPU memory limits
+    "spark.rapids.memory.gpu.maxAllocFraction": "0.9"  # Ensure it's consistent
+    "spark.rapids.memory.gpu.minAllocFraction": "0.25"
+    "spark.rapids.sql.shuffle.spillThreads": "16"
+    "spark.rapids.sql.batchSizeBytes": "512m"
+    "spark.rapids.sql.reader.batchSizeBytes": "512m"
+    "spark.rapids.sql.metrics.level": "MODERATE"  # Optional, set to DEBUG if needed
+    "spark.rapids.sql.explain": "ALL"  # Optional for debugging
+    "spark.rapids.sql.stableSort.enabled": "true"
+    "spark.rapids.sql.variableFloatAgg.enabled": "false"
+    "spark.task.resource.gpu.amount": "0.25" # experimenting
+    "spark.rapids.sql.explain": "NOT_ON_GPU"
+    "spark.rapids.sql.incompatibleOps.enabled": "true"
+    "spark.rapids.shuffle.mode": "MULTITHREADED"
+    "spark.sql.adaptive.enabled": "true"
+  driver:
+    cores: 1
+    coreLimit: "1200m"
+    memory: "4g"
+    labels:
+      version: "3.5.1"
+    serviceAccount: data-eng-team
+    securityContext:
+      runAsUser: 185
+    nodeSelector:
+      node-type: ssd-x86
+      karpenter.sh/capacity-type: on-demand
+    volumeMounts:
+      - name: "test-volume"
+        mountPath: "/tmp"
+    volumeMounts:
+      - name: spark-local-dir-1
+        mountPath: /data1
+        readOnly: false
+    initContainers:
+      - name: volume-permission
+        image: public.ecr.aws/docker/library/busybox
+        command: ['sh', '-c', 'mkdir -p /data1 && ls -l /data1 && chown -R 185:185 /data1']
+        volumeMounts:
+          - name: spark-local-dir-1
+            mountPath: /data1
+            readOnly: false
+  executor:
+    cores: 4
+    instances: 4  # Single executor with one GPU - aiming for g5 or g6 xlarge
+    memory: "10g"
+    gpu:
+      name: "nvidia.com/gpu"
+      quantity: 1
+    labels:
+      version: "3.5.1"
+    securityContext:
+      runAsUser: 185
+    serviceAccount: data-eng-team
+    nodeSelector:
+      node-type: g-a10g-single # Change this to "g-a10g-multigpu" to spinup multi gpu instance
+    volumeMounts:
+      - name: spark-local-dir-1
+        mountPath: /data1
+    initContainers:
+      - name: volume-permission
+        image: public.ecr.aws/docker/library/busybox
+        command: ['sh', '-c', 'mkdir -p /data1; chown -R 185:185 /data1']
+        volumeMounts:
+          - name: spark-local-dir-1
+            mountPath: /data1
+    tolerations:
+      - key: "nvidia.com/gpu"
+        operator: "Equal"
+        value: "true"
+        effect: "NoSchedule"
+  volumes:
+    - name: spark-local-dir-1
+      hostPath:
+        path: "/mnt/k8s-disks/0"
+        type: DirectoryOrCreate
+    - name: "test-volume"
+      hostPath:
+        path: "/tmp"
+        type: Directory

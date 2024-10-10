@@ -14,6 +14,21 @@ provider "aws" {
   region = "us-east-1"
 }
 
+# Removed exec plugin as this doesn't work with Terraform Cloud and TOFU controller plugin with backstage
+provider "kubernetes" {
+  # The EKS cluster API endpoint and certificate are retrieved from the EKS module.
+  host                   = module.eks.cluster_endpoint
+  cluster_ca_certificate = base64decode(module.eks.cluster_certificate_authority_data)
+
+  exec {
+    # Retrieves an authentication token for Kubernetes API using the AWS CLI.
+    api_version = "client.authentication.k8s.io/v1beta1"
+    command     = "aws"
+    args        = ["eks", "get-token", "--cluster-name", module.eks.cluster_name]
+    # Note: The AWS CLI must be installed locally where Terraform is executed.
+  }
+}
+
 # ---------------------------------------------------------------
 # Helm Provider Configuration
 # ---------------------------------------------------------------
@@ -67,7 +82,9 @@ data "aws_availability_zones" "available" {}
 data "aws_caller_identity" "current" {}
 
 # Retrieves the current AWS partition (useful for AWS GovCloud or China regions).
-# data "aws_partition" "current" {}
+data "aws_partition" "current" {}
+
+data "aws_region" "current" {}
 
 # Retrieves the IAM session context, including the ARN of the currently logged-in user/role.
 data "aws_iam_session_context" "current" {
