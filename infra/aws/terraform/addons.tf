@@ -5,7 +5,7 @@
 #---------------------------------------------------------------
 module "eks_data_addons" {
   source  = "aws-ia/eks-data-addons/aws"
-  version = "~> 1.30" # ensure to update this to the latest/desired version
+  version = "1.34" # ensure to update this to the latest/desired version
 
   oidc_provider_arn = module.eks.oidc_provider_arn
 
@@ -30,7 +30,7 @@ module "eks_data_addons" {
 
   enable_spark_operator = true
   spark_operator_helm_config = {
-    version = "2.0.1"
+    version = "2.0.2"
     values = [
       <<-EOT
         spark:
@@ -57,5 +57,14 @@ module "eks_data_addons" {
   }
 
   enable_volcano = var.enable_volcano
+
+  enable_spark_history_server = true
+  spark_history_server_helm_config = {
+    values = [
+      <<-EOT
+      sparkHistoryOpts: "-Dspark.history.fs.logDirectory=s3a://${module.s3_bucket.s3_bucket_id}/${aws_s3_object.this.key}"
+      EOT
+    ]
+  }
 
 }

@@ -146,7 +146,7 @@ resource "kubectl_manifest" "nvme_ssd_x86" {
               values: ["c5d", "m5d", "r5d"]
             - key: "karpenter.k8s.aws/instance-cpu"
               operator: In
-              values: ["4", "8", "16", "32"]
+              values: ["4", "8"]
             - key: "karpenter.k8s.aws/instance-hypervisor"
               operator: In
               values: ["nitro"]
@@ -220,7 +220,7 @@ resource "kubectl_manifest" "g_a10g_single" {
               values: ["g"]
             - key: "karpenter.k8s.aws/instance-cpu"
               operator: In
-              values: ["4", "8", "16", "32", "64"]
+              values: ["4", "8"]
             - key: "karpenter.k8s.aws/instance-hypervisor"
               operator: In
               values: ["nitro"]

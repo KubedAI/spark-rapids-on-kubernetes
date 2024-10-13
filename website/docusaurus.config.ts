@@ -55,7 +55,7 @@ const config: Config = {
       title: 'Kube-dAI',
       logo: {
         alt: 'Site Logo',
-        src: 'img/kubedai-logo.png',
+        src: 'img/Kube-dAI-Logo-Favicon-(32x32).png',
       },
       items: [
         {

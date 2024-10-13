@@ -1,3 +1,4 @@
+---
 # Replace <S3_BUCKET> with the bucket name created by the blueprint. Checkout the values form `terraform output`
 # Copy the PySpark script to S3 bucket
 # aws s3 cp examples/benchmarks/benchmark/spark-rapids-benchmarks.py s3://<S3_BUCKET>/benchmark/scripts/
@@ -42,6 +43,28 @@ spec:
     "spark.sql.files.maxPartitionBytes": "512m"
     "spark.sql.shuffle.partitions": "200"
     "spark.dynamicAllocation.enabled": "false"
+    "spark.executor.memoryOverhead": "2g"
+
+    # Spark Event logs
+    "spark.eventLog.enabled": "true"
+    "spark.eventLog.dir": "s3a://<S3_BUCKET>/spark-event-logs"
+    "spark.eventLog.rolling.enabled": "true"
+    "spark.eventLog.rolling.maxFileSize": "64m"
+    # "spark.history.fs.eventLog.rolling.maxFilesToRetain": 100
+
+    # Expose Spark metrics for Prometheus
+    "spark.ui.prometheus.enabled": "true"
+    "spark.executor.processTreeMetrics.enabled": "true"
+    "spark.kubernetes.driver.annotation.prometheus.io/scrape": "true"
+    "spark.kubernetes.driver.annotation.prometheus.io/path": "/metrics/executors/prometheus/"
+    "spark.kubernetes.driver.annotation.prometheus.io/port": "4040"
+    "spark.kubernetes.driver.service.annotation.prometheus.io/scrape": "true"
+    "spark.kubernetes.driver.service.annotation.prometheus.io/path": "/metrics/driver/prometheus/"
+    "spark.kubernetes.driver.service.annotation.prometheus.io/port": "4040"
+    "spark.metrics.conf.*.sink.prometheusServlet.class": "org.apache.spark.metrics.sink.PrometheusServlet"
+    "spark.metrics.conf.*.sink.prometheusServlet.path": "/metrics/driver/prometheus/"
+    "spark.metrics.conf.master.sink.prometheusServlet.path": "/metrics/master/prometheus/"
+    "spark.metrics.conf.applications.sink.prometheusServlet.path": "/metrics/applications/prometheus/"
   driver:
     cores: 1
     coreLimit: "1200m"
@@ -55,9 +78,6 @@ spec:
       node-type: ssd-x86
       karpenter.sh/capacity-type: on-demand
     volumeMounts:
-      - name: "test-volume"
-        mountPath: "/tmp"
-    volumeMounts:
       - name: spark-local-dir-1
         mountPath: /data1
         readOnly: false
@@ -70,9 +90,9 @@ spec:
             mountPath: /data1
             readOnly: false
   executor:
-    cores: 4
+    cores: 6 # c5d with 8vCPU
     instances: 2  # Adjust based on workload size
-    memory: "10g"
+    memory: "20g"
     labels:
       version: "3.5.1"
     securityContext:
@@ -96,7 +116,3 @@ spec:
       hostPath:
         path: "/mnt/k8s-disks/0"
         type: DirectoryOrCreate
-    - name: "test-volume"
-      hostPath:
-        path: "/tmp"
-        type: Directory

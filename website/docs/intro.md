@@ -8,7 +8,7 @@ import CodeBlock from '@theme/CodeBlock';
 # Getting Started with ⚡ Apache Spark RAPIDS ⚡
 
 Apache Spark RAPIDS, also known as RAPIDS Accelerator for Apache Spark is a powerful tool that builds on the capabilities of NVIDIA CUDA® - a transformative parallel computing platform designed for enhancing computational processes on NVIDIA's GPU architecture.
-Apache Spark RAPIDS leverages GPUs to accelerate processing of Apache Spark workloads via the [RAPIDS libraries](http://rapids.ai/), enabling high-performance, distributed data processing for data science workflows at scale. 
+Apache Spark RAPIDS leverages GPUs to accelerate processing of Apache Spark workloads via the [RAPIDS libraries](http://rapids.ai/), enabling high-performance, distributed data processing for data science workflows at scale.
 
 By merging the capabilities of the RAPIDS cuDF library and the extensive reach of the Spark distributed computing ecosystem, the RAPIDS Accelerator for Apache Spark provides a robust solution to handle large-scale computations. Moreover, the RAPIDS Accelerator library incorporates an advanced shuffle optimized by UCX, which can be configured to support GPU-to-GPU communication and RDMA capabilities, hence further boosting its performance. By using RAPIDS, you can perform data science, machine learning, and analytics tasks faster by offloading processing to GPUs, significantly reducing the runtime of complex Spark jobs.
 
@@ -122,5 +122,3 @@ As the use of artificial intelligence (AI) and machine learning (ML) continues t
 - [Apache Spark RAPIDS Documentation](https://nvidia.github.io/spark-rapids/)
 - [NVIDIA RAPIDS Overview](https://rapids.ai/)
 - [Spark RAPIDS GitHub](https://github.com/NVIDIA/spark-rapids)
-
-

@@ -31,5 +31,3 @@ USER 1001
 
 # Set the entry point for the Spark container
 ENTRYPOINT ["/opt/entrypoint.sh"]
-
-

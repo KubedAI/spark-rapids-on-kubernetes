@@ -1,3 +1,4 @@
+---
 # Replace <S3_BUCKET> with the bucket name created by the blueprint. Checkout the values form `terraform output`
 # Copy the PySpark script to S3 bucket
 # aws s3 cp examples/benchmarks/data-generation-retail.py s3://<S3_BUCKET>/benchmark/scripts/
@@ -11,7 +12,7 @@ spec:
   type: Python
   pythonVersion: "3"
   mode: cluster
-  image: public.ecr.aws/data-on-eks/spark3.3.1-hadoop3.2-aws-java-sdk-bundle-1.12.647  # Replace with your image URI
+  image: kubedai/spark:spark-3.5.1_hadoop-3.3.4_aws-sdk-1.12.773  # Replace with your image URI
   imagePullPolicy: Always
   mainApplicationFile: "s3a://<S3_BUCKET>/benchmark/scripts/data-generation-retail.py"  # Main Python script
   arguments:

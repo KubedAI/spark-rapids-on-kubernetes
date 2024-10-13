@@ -40,38 +40,65 @@ spec:
     "spark.local.dir": "/data1"
     "spark.dynamicAllocation.enabled": "false"
     "spark.ui.port": "4045"
-    
-    "spark.rapids.sql.concurrentGpuTasks": "4" # 2 tasks on g6.4x large takes 32 mins and 4 tasks takes: 
-    "spark.executor.resource.gpu.amount": "1"
-    "spark.rapids.memory.pinnedPool.size": "2g"
-    "spark.executor.memoryOverhead": "3g"
-    "spark.sql.files.maxPartitionBytes": "512m"
-    "spark.sql.shuffle.partitions": "10"
-    "spark.plugins": "com.nvidia.spark.SQLPlugin"
-    "spark.shuffle.manager": "com.nvidia.spark.rapids.spark351.RapidsShuffleManager"
-    "spark.executor.resource.gpu.discoveryScript": "/opt/sparkRapidsPlugin/getGpusResources.sh"
+
+    # Spark Event logs
+    "spark.eventLog.enabled": "true"
+    "spark.eventLog.dir": "s3a://<S3_BUCKET>/spark-event-logs"
+    "spark.eventLog.rolling.enabled": "true"
+    "spark.eventLog.rolling.maxFileSize": "64m"
+    # "spark.history.fs.eventLog.rolling.maxFilesToRetain": 100
+
+    # Expose Spark metrics for Prometheus
+    "spark.ui.prometheus.enabled": "true"
+    "spark.executor.processTreeMetrics.enabled": "true"
+    "spark.kubernetes.driver.annotation.prometheus.io/scrape": "true"
+    "spark.kubernetes.driver.annotation.prometheus.io/path": "/metrics/executors/prometheus/"
+    "spark.kubernetes.driver.annotation.prometheus.io/port": "4040"
+    "spark.kubernetes.driver.service.annotation.prometheus.io/scrape": "true"
+    "spark.kubernetes.driver.service.annotation.prometheus.io/path": "/metrics/driver/prometheus/"
+    "spark.kubernetes.driver.service.annotation.prometheus.io/port": "4040"
+    "spark.metrics.conf.*.sink.prometheusServlet.class": "org.apache.spark.metrics.sink.PrometheusServlet"
+    "spark.metrics.conf.*.sink.prometheusServlet.path": "/metrics/driver/prometheus/"
+    "spark.metrics.conf.master.sink.prometheusServlet.path": "/metrics/master/prometheus/"
+    "spark.metrics.conf.applications.sink.prometheusServlet.path": "/metrics/applications/prometheus/"
+    # Determines how many CPU cores each Spark task will use. In this case, each task uses 1 CPU core.
+    "spark.task.cpus": "1"  # Allocates 1 CPU core per Spark task.
+
+    # Specifies the fraction of GPU allocated per task. Here, 0.166 means each task will use 1/6th of a GPU,
+    # allowing up to 6 tasks to share a single GPU. This matches the executor's CPU configuration (6 cores per executor).
+    "spark.task.resource.gpu.amount": "0.166"  # Each task gets 1/6th of a GPU, enabling 6 tasks per GPU.
+
+    # Defines the total number of GPUs available for each Spark executor. In this case, each executor gets 1 full GPU.
+    "spark.executor.resource.gpu.amount": "1"  # Allocates 1 GPU per executor.
+    "spark.rapids.sql.concurrentGpuTasks": "2"  # Each Spark Task only half of the GPU with value 2
+    "spark.rapids.memory.pinnedPool.size": "2g"  # Defines GPU memory pinned pool size for faster memory access
+    "spark.executor.memoryOverhead": "2g"  # Allocates additional memory overhead to prevent executor crashes
+    "spark.rapids.sql.batchSizeBytes": "512m"  # Sets the target batch size for GPU processing in SQL operations
+    "spark.rapids.sql.reader.batchSizeBytes": "512m"  # Sets the batch size for data reading into GPU memory
+    "spark.sql.files.maxPartitionBytes": "512m"  # Controls the max size of each file partition during reading
+    "spark.sql.shuffle.partitions": "8"  # Adjusts the number of shuffle partitions to balance workload and performance
+    "spark.plugins": "com.nvidia.spark.SQLPlugin"  # Enables the NVIDIA RAPIDS Accelerator for Spark SQL processing
+    "spark.shuffle.manager": "com.nvidia.spark.rapids.spark351.RapidsShuffleManager"  # Uses RAPIDS Shuffle Manager for GPU-accelerated shuffling
+    "spark.executor.resource.gpu.discoveryScript": "/opt/sparkRapidsPlugin/getGpusResources.sh"  # Script to discover available GPUs for Spark executors
     "spark.executor.resource.gpu.vendor": "nvidia.com"
     "spark.executor.extraLibraryPath": "/usr/local/cuda/lib:/usr/local/cuda/lib64:/usr/local/cuda/extras/CUPTI/lib64:/usr/local/cuda/targets/x86_64-linux/lib:/usr/lib/hadoop/lib/native:/usr/lib/hadooplzo/lib/native:/docker/usr/lib/hadoop/lib/native:/docker/usr/lib/hadoop-lzo/lib/native"
-    "spark.task.cpus": "4"
-    "spark.dynamicAllocation.enabled": "false"
-    "spark.rapids.sql.enabled": "true"
-    "spark.rapids.cloudSchemes": "s3a"
-    "spark.rapids.memory.gpu.pool": "ASYNC"
-    "spark.rapids.memory.gpu.allocFraction": "0.8"  # Adjusted to avoid exceeding GPU memory limits
-    "spark.rapids.memory.gpu.maxAllocFraction": "0.9"  # Ensure it's consistent
-    "spark.rapids.memory.gpu.minAllocFraction": "0.25"
-    "spark.rapids.sql.shuffle.spillThreads": "16"
-    "spark.rapids.sql.batchSizeBytes": "512m"
-    "spark.rapids.sql.reader.batchSizeBytes": "512m"
-    "spark.rapids.sql.metrics.level": "MODERATE"  # Optional, set to DEBUG if needed
-    "spark.rapids.sql.explain": "ALL"  # Optional for debugging
-    "spark.rapids.sql.stableSort.enabled": "true"
-    "spark.rapids.sql.variableFloatAgg.enabled": "false"
-    "spark.task.resource.gpu.amount": "0.25" # experimenting
-    "spark.rapids.sql.explain": "NOT_ON_GPU"
-    "spark.rapids.sql.incompatibleOps.enabled": "true"
-    "spark.rapids.shuffle.mode": "MULTITHREADED"
-    "spark.sql.adaptive.enabled": "true"
+    "spark.dynamicAllocation.enabled": "false"  # Disables dynamic allocation to ensure static resource allocation for executors
+    "spark.rapids.sql.enabled": "true"  # Enables GPU acceleration for SQL queries using RAPIDS
+    "spark.rapids.shuffle.enabled": "true"  # Enables RAPIDS accelerated shuffle for improved GPU performance
+    "spark.rapids.cloudSchemes": "s3a"  # Ensures RAPIDS can work with S3 cloud storage schemes
+    "spark.rapids.memory.gpu.pool": "ASYNC"  # Uses asynchronous GPU memory pool allocation for faster processing
+    "spark.rapids.memory.gpu.allocFraction": "0.8"  # Allocates 80% of available GPU memory to tasks for efficiency
+    "spark.rapids.memory.gpu.maxAllocFraction": "0.9"  # Sets a 90% max GPU memory allocation limit to avoid exceeding resources
+    "spark.rapids.memory.gpu.minAllocFraction": "0.25"  # Ensures at least 25% of GPU memory is always allocated
+    "spark.rapids.sql.shuffle.spillThreads": "16"  # Number of threads to handle shuffle spilling to disk during processing
+    "spark.rapids.sql.metrics.level": "MODERATE"  # Set metrics collection level to moderate to balance overhead and insights
+    "spark.rapids.sql.explain": "ALL"  # Provides full explanation for query placement on GPU during execution
+    "spark.rapids.sql.stableSort.enabled": "true"  # Enables stable sorting using RAPIDS on GPU for consistent results
+    "spark.rapids.sql.variableFloatAgg.enabled": "false"  # Disables variable float aggregation due to potential incompatibilities
+    "spark.rapids.sql.explain": "NOT_ON_GPU"  # Logs why certain operations are not executed on GPU, useful for debugging
+    "spark.rapids.sql.incompatibleOps.enabled": "true"  # Allows running operations on CPU when not supported on GPU
+    "spark.rapids.shuffle.mode": "MULTITHREADED"  # Enables multithreaded shuffle for enhanced data processing performance
+    "spark.sql.adaptive.enabled": "true"  # Enables Adaptive Query Execution (AQE) for dynamic optimization of query plans
   driver:
     cores: 1
     coreLimit: "1200m"
@@ -100,9 +127,9 @@ spec:
             mountPath: /data1
             readOnly: false
   executor:
-    cores: 4
-    instances: 4  # Single executor with one GPU - aiming for g5 or g6 xlarge
-    memory: "10g"
+    cores: 6 # Aiming for g6.2xlarge with 8vCPU and 1 GPU
+    instances: 2
+    memory: "20g"
     gpu:
       name: "nvidia.com/gpu"
       quantity: 1

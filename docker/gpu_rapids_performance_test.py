@@ -1,9 +1,3 @@
-# spark.plugins: Set to "com.nvidia.spark.SQLPlugin", which is the RAPIDS SQL plugin that enables GPU acceleration.
-# spark.rapids.sql.enabled: Set to "true", enabling RAPIDS acceleration for Spark SQL.
-# spark.executor.resource.gpu.amount and spark.task.resource.gpu.amount: These are configured to allocate 1 GPU per executor and per task, ensuring tasks are run on GPUs.
-# spark.rapids.sql.concurrentGpuTasks: Limits the number of concurrent tasks per GPU to control GPU utilization.
-# Other configurations like spark.rapids.memory.pinnedPool.size help with managing GPU memory.
-
 import logging
 from pyspark.sql import SparkSession
 from pyspark import SparkConf
@@ -22,7 +16,7 @@ conf = SparkConf() \
     .set("spark.rapids.sql.enabled", "true") \
     .set("spark.rapids.sql.concurrentGpuTasks", "2") \
     .set("spark.executor.resource.gpu.amount", "1") \
-    .set("spark.task.resource.gpu.amount", "1") \
+    .set("spark.task.resource.gpu.amount", "0.5") \
     .set("spark.executor.cores", "4") \
     .set("spark.executor.memory", "16g") \
     .set("spark.executor.memoryOverhead", "4g") \
@@ -89,8 +83,8 @@ results = spark.sql("""
 results.show()
 
 # Add a sleep step to ensure the job runs for at least 10 minutes
-logger.info("Ensuring job runs for 10 minutes...")
-time.sleep(600)  # Sleep for 10 minutes (600 seconds)
+logger.info("Ensuring job runs for 5 minutes...")
+time.sleep(300)  # Sleep for 5 mins
 
 # Stop the Spark session
 logger.info("Stopping the Spark session.")
