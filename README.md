@@ -42,6 +42,7 @@ Here’s what you'll find in the project:
 ```
 .
 ├── README.md          # Project overview and instructions
+├── benchmarks         # Bechmarks scripts
 ├── docker             # Sample Dockerfiles
 ├── examples           # Spark RAPIDS job examples
 ├── infra              # Terraform scripts for cluster setup
@@ -67,4 +68,4 @@ Let’s accelerate your data processing workflows and save on costs with GPU-acc
 ## 🤝 Support
 This project is free to use, and we'd love to see contributions from the community! If you have any questions, feel free to raise an issue on GitHub or provide feedback.
 
-However, if you need additional support for your organization or professional guidance, don't hesitate to reach out to us directly at info@kubed.ai.
+However, if you need additional support for your organization or professional guidance, don't hesitate to reach out to us directly at info@kubed.ai
