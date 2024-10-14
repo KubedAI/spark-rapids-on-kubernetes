@@ -49,7 +49,7 @@ chmod +x install.sh
 
 ## Verifying the Deployment ✅
 
-To verify the status of the EKS cluster and the resources, run the below commands.
+To verify the status of the EKS cluster and the resources that are deployed, run the below commands.
 
     
 ```
