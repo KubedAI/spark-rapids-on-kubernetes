@@ -17,7 +17,7 @@ spec:
   mainApplicationFile: "s3a://<S3_BUCKET>/benchmark/scripts/data-generation-retail.py"  # Main Python script
   arguments:
     - "s3a://<S3_BUCKET>/benchmark/input"
-    - "1000000000"  # 1000 million - num_rows_large for sales table generetes 60GB sales data
+    - "1000000000"  # 1000 million - num_rows_large for sales table generates 60GB sales data
     - "100000000"   # 100 million - num_rows_small for customer table - Creates 6GB Data
     - "100000"      # 100k - num_rows_product for product table - Creates 5MB data
   sparkVersion: "3.3.1"

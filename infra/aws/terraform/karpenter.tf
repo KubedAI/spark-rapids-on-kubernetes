@@ -193,7 +193,7 @@ resource "kubectl_manifest" "gpu" {
 }
 
 # Create a default NodePool referencing the GPU NodeClass
-# Create GPU instaces with 1 GPU. e.g., g5x.large to g5.16xlarge
+# Create GPU instances with 1 GPU. e.g., g5x.large to g5.16xlarge
 resource "kubectl_manifest" "g_a10g_single" {
   yaml_body = <<-YAML
     apiVersion: karpenter.sh/v1
