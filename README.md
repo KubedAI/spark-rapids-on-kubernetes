@@ -1,4 +1,4 @@
-# ✨ Spark RAPIDS on Kubernetes: Supercharge Your Data Processing 🚀⚡
+# ✨ Spark RAPIDS on Kubernetes 🚀⚡
 
 ## ⚠️🚧 WARNING: Work in Progress 🚧⚠️
 
