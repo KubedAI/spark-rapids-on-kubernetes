@@ -24,20 +24,20 @@ Before deploying, ensure the following prerequisites are met.
 
 Follow the below steps to create your EKS cluster with all the necessary addons.
 
-Step 1: Clone the Repository 📂
+**Step 1**: Clone the Repository 📂
 
 ```
 git clone https://github.com/KubedAI/spark-rapids-on-kubernetes.git
 cd spark-rapids-on-kubernetes/infra/aws/terraform
 ```
 
-Step 2: Configure Terraform Backend ⚙️
+**Step 2**: Configure Terraform Backend ⚙️
 
-By default, the blueprint uses the latest and greates EKS version 1.31 and `us-west-2` as the default region.
+By default, the blueprint uses the latest and greatest EKS version and `us-west-2` as the default region.
 
 You can customize the terraform configuration that comes pre-built with this blueprint. Update the `variables.tf` file to use a different EKS version, AWS region and other parameters.
 
-Step 3: Initialize and Apply Terraform 🚀
+**Step 3**: Initialize and Apply Terraform 🚀
 
 To install the EKS cluster with all the addons in one step, run the below commands. The `install.sh` script wraps the `terraform init` and deploys the terraform modules as targets with `terraform apply`.
 
@@ -49,7 +49,7 @@ chmod +x install.sh
 
 ## Verifying the Deployment ✅
 
-To verify the status of the EKS cluster and the resources, run the below commands.
+To verify the status of the EKS cluster and the resources that are deployed, run the below commands.
 
     
 ```
