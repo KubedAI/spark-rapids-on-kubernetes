@@ -17,7 +17,7 @@ spec:
   mainApplicationFile: "s3a://<S3_BUCKET>/benchmark/scripts/data-generation-retail.py"  # Main Python script
   arguments:
     - "s3a://<S3_BUCKET>/benchmark/input"
-    - "1000000000"  # 1000 million - num_rows_large for sales table generetes 60GB sales data
+    - "1000000000"  # 1000 million - num_rows_large for sales table generates 60GB sales data
     - "100000000"   # 100 million - num_rows_small for customer table - Creates 6GB Data
     - "100000"      # 100k - num_rows_product for product table - Creates 5MB data
   sparkVersion: "3.3.1"
@@ -58,20 +58,6 @@ spec:
     volumeMounts:
       - name: "test-volume"
         mountPath: "/tmp"
-    # Investigate as Volume mount on driver is not working for /data1. Throwing an error saying that unable to create /data1 folder
-    # Issue could be due to Webhook is not ready to mount the volume
-    # volumeMounts:
-    #   - name: spark-local-dir-1
-    #     mountPath: /data1
-    #     readOnly: false
-    # initContainers:
-    #   - name: volume-permission
-    #     image: public.ecr.aws/docker/library/busybox
-    #     command: ['sh', '-c', 'mkdir -p /data1 && ls -l /data1 && chown -R 1001:1001 /data1']
-    #     volumeMounts:
-    #       - name: spark-local-dir-1
-    #         mountPath: /data1
-    #         readOnly: false
   executor:
     cores: 2
     instances: 2  # Use multiple executors for faster data generation
