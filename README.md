@@ -1,10 +1,5 @@
 # ✨ Spark RAPIDS on Kubernetes 🚀⚡
 
-## ⚠️🚧 WARNING: Work in Progress 🚧⚠️
-
->This project is still under active development and may not be fully stable. Features, functionality, and configurations are subject to change. Please proceed with caution, and feel free to contribute or provide feedback. 🙏 Thank you for your support!
-
-
 ## 🌟 Overview
 
 Welcome to **Spark RAPIDS on Kubernetes**, where we accelerate data processing workloads using the power of NVIDIA GPUs and Apache Spark, all running in a Kubernetes environment. 🚀
