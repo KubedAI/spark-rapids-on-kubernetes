@@ -8,7 +8,6 @@ terraform init || echo "\"terraform init\" failed"
 # List of Terraform modules to apply in sequence
 #-------------------------------------------------------------------------
 targets=(
-  "module.vpc"
   "module.eks"
 )
 
